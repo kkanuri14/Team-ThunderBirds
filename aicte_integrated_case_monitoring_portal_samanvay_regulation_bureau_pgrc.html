@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AICTE Integrated Case Monitoring Portal (SAMANVAY) | Regulation Bureau &amp; PGRC</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f4f6f8;
+      color: #1e293b;
+    }
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .gov-table th {
+      background-color: #f8fafc;
+      border-bottom: 2px solid #cbd5e1;
+      color: #334155;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .gov-table td {
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .gov-panel {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP NIC / GIGW GOVERNMENT ACCESSIBILITY STRIP -->
+  <div class="bg-[#1b365d] text-slate-200 text-[11px] py-1 px-4 border-b border-slate-700">
+    <div class="max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <span class="font-semibold text-white">भारत सरकार | Government of India</span>
+        <span class="text-slate-400">|</span>
+        <span>Ministry of Education — All India Council for Technical Education (AICTE)</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="mono text-[11px] text-amber-300" id="swarm-heartbeat">Engine Status: 4 Worker Agents Active (Sync: 120ms)</span>
+        <span class="hidden md:inline text-slate-400">|</span>
+        <span class="hidden md:inline text-slate-300">NIC e-Gov Internal Build v2.4 (PS-26264)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFICIAL AICTE PORTAL HEADER -->
+  <header class="bg-white border-b-2 border-[#1b365d] sticky top-0 z-30 shadow-sm">
+    <div class="max-w-[1400px] mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <!-- Official Emblem / Crest SVG -->
+        <div class="w-10 h-10 rounded border border-slate-300 bg-[#f8fafc] flex items-center justify-center text-[#1b365d] font-bold text-xs shrink-0">
+          <svg class="w-6 h-6 text-[#1b365d]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 18h16M6 18v-7m4 7v-7m4 7v-7m4 7v-7M12 3l9 5H3l9-5z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold text-[#0f172a] tracking-tight">
+              AICTE — SAMANVAY Inter-Bureau Grievance &amp; Regulatory Portal
+            </h1>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300 mono">e-File &amp; Case Tracker</span>
+          </div>
+          <p class="text-xs text-slate-600">
+            Regulation Bureau (RB) • Public Grievance Redressal Cell (PGRC) • Vigilance Cell • Regional Offices
+          </p>
+        </div>
+      </div>
+
+      <!-- Officer Desk Role Selector & Intake Trigger -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex items-center bg-slate-50 border border-slate-300 rounded px-2.5 py-1 text-xs">
+          <span class="text-slate-500 mr-2 font-medium">Logged-in Desk:</span>
+          <select id="role-select" class="bg-transparent text-slate-900 font-semibold focus:outline-none cursor-pointer">
+            <option value="ALL">Member Secretary / Competent Authority (All Cells)</option>
+            <option value="RB">Regulation Bureau (RB — Approval Desk)</option>
+            <option value="PGRC">Public Grievance Cell (PGRC — SCSC Desk)</option>
+            <option value="VIGILANCE">Chief Vigilance Cell (CVC / AICTE)</option>
+            <option value="RO">Regional Officer (SCRO / NRO / WRO)</option>
+          </select>
+        </div>
+
+        <button id="btn-open-simulator" class="bg-[#1b365d] hover:bg-[#152a4a] text-white font-semibold text-xs px-3 py-1.5 rounded border border-[#0f2342] flex items-center gap-1.5 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>New Case Intake / Test Agent Pipeline</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Clean Tab Bar -->
+    <div class="bg-[#f8fafc] border-t border-slate-200">
+      <div class="max-w-[1400px] mx-auto px-4 flex overflow-x-auto gap-1">
+        <button data-tab="tab-dashboard" class="nav-tab px-4 py-2 text-xs font-semibold border-b-2 border-[#1b365d] text-[#1b365d] bg-white whitespace-nowrap flex items-center gap-2">
+          <span>1. Master Case Register &amp; Overlap Alerts</span>
+          <span id="nav-overlap-badge" class="px-1.5 py-0.5 text-[10px] rounded bg-red-700 text-white font-bold mono">3 Conflicts</span>
+        </button>
+        <button data-tab="tab-simulator" class="nav-tab px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap flex items-center gap-2">
+          <span>2. Agentic Dispatch &amp; Entity Resolution Console</span>
+        </button>
+        <button data-tab="tab-profile" class="nav-tab px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap flex items-center gap-2">
+          <span>3. Institution Master Dossier (PID 1-XXXXXXXX) &amp; File Movement Log</span>
+        </button>
+        <button data-tab="tab-analytics" class="nav-tab px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-900 whitespace-nowrap flex items-center gap-2">
+          <span>4. Bureau Pendency, SLA Ageing &amp; MIS Reports</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+  <!-- MAIN PORTAL WORKSPACE -->
+  <main class="flex-1 max-w-[1400px] w-full mx-auto px-4 py-4">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: MASTER CASE REGISTER & OVERLAP ALERTS -->
+    <!-- ========================================== -->
+    <section id="tab-dashboard" class="tab-panel space-y-4">
+
+      <!-- Compact Government MIS Summary Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+        <div class="gov-panel p-3 border-l-4 border-l-slate-700">
+          <div class="text-[11px] font-semibold text-slate-500 uppercase">Total Registered</div>
+          <div class="text-xl font-bold text-slate-900 mono mt-0.5" id="kpi-total">0</div>
+          <div class="text-[11px] text-slate-500">All Bureaus / Cells</div>
+        </div>
+        <div class="gov-panel p-3 border-l-4 border-l-red-700 bg-red-50/40">
+          <div class="text-[11px] font-bold text-red-800 uppercase">Cross-Bureau Overlaps</div>
+          <div class="text-xl font-bold text-red-700 mono mt-0.5" id="kpi-overlaps">0</div>
+          <div class="text-[11px] text-red-700 font-medium">RB ∩ PGRC Active</div>
+        </div>
+        <div class="gov-panel p-3 border-l-4 border-l-blue-700">
+          <div class="text-[11px] font-semibold text-slate-500 uppercase">Under Process</div>
+          <div class="text-xl font-bold text-blue-800 mono mt-0.5" id="kpi-process">0</div>
+          <div class="text-[11px] text-slate-500">Scrutiny / Hearing</div>
+        </div>
+        <div class="gov-panel p-3 border-l-4 border-l-amber-600">
+          <div class="text-[11px] font-semibold text-slate-500 uppercase">Pending Action</div>
+          <div class="text-xl font-bold text-amber-700 mono mt-0.5" id="kpi-pending">0</div>
+          <div class="text-[11px] text-slate-500">Awaiting Institute/Officer</div>
+        </div>
+        <div class="gov-panel p-3 border-l-4 border-l-orange-600">
+          <div class="text-[11px] font-semibold text-orange-800 uppercase">SLA Breached</div>
+          <div class="text-xl font-bold text-orange-700 mono mt-0.5" id="kpi-overdue">0</div>
+          <div class="text-[11px] text-slate-500">&gt;15d SGRC / &gt;30d SCSC</div>
+        </div>
+        <div class="gov-panel p-3 border-l-4 border-l-purple-700">
+          <div class="text-[11px] font-semibold text-slate-500 uppercase">Transferred</div>
+          <div class="text-xl font-bold text-purple-800 mono mt-0.5" id="kpi-transferred">0</div>
+          <div class="text-[11px] text-slate-500">Forwarded to RO / EVC</div>
+        </div>
+        <div class="gov-panel p-3 border-l-4 border-l-emerald-700">
+          <div class="text-[11px] font-semibold text-slate-500 uppercase">Disposed</div>
+          <div class="text-xl font-bold text-emerald-700 mono mt-0.5" id="kpi-disposed">0</div>
+          <div class="text-[11px] text-slate-500">Speaking Order Issued</div>
+        </div>
+      </div>
+
+      <!-- STATUTORY OVERLAP NOTIFICATION CALLOUT (CLEAN GOVT NOTICE FORMAT) -->
+      <div class="gov-panel border-l-4 border-l-red-700 bg-[#fffafa]">
+        <div class="px-4 py-2.5 bg-red-50 border-b border-red-200 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-red-700 text-white font-bold text-[11px] mono uppercase">System Advisory</span>
+            <h2 class="text-xs sm:text-sm font-bold text-red-950">
+              Potential Overlapping Cases – Coordination Required (Cross-Bureau Concurrency Lock)
+            </h2>
+          </div>
+          <span class="text-xs text-red-800 mono font-medium" id="overlap-banner-count">Scanning active files...</span>
+        </div>
+
+        <div id="overlap-cards-container" class="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3.5">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- WORKSPACE SPLIT: 8 COLS CASE REGISTER + 4 COLS AGENT BUS LOG -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- Left 8 Cols: Filter Toolbar & Master Register Table -->
+        <div class="lg:col-span-8 space-y-3">
+
+          <!-- 8-Parameter Filter Panel -->
+          <div class="gov-panel p-3.5 space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+              <h3 class="text-xs font-bold uppercase text-slate-700">Filter Master Complaint &amp; Regulatory Register</h3>
+              <button id="btn-reset-filters" class="text-xs text-[#1b365d] hover:underline font-semibold">Clear Filters</button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+              <input id="filter-search" type="text" placeholder="Search Institute, PID (1-...), File No..." class="text-xs border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none focus:border-[#1b365d]" />
+
+              <select id="filter-bureau" class="text-xs border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-[#1b365d] bg-white">
+                <option value="ALL">All Bureaus / Cells</option>
+                <option value="RB">Regulation Bureau (RB)</option>
+                <option value="PGRC">Public Grievance Cell (PGRC)</option>
+                <option value="VIGILANCE">Vigilance Cell</option>
+                <option value="RO">Regional Office (RO)</option>
+              </select>
+
+              <select id="filter-region" class="text-xs border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-[#1b365d] bg-white">
+                <option value="ALL">All AICTE Regions</option>
+                <option value="South-Central">South-Central (Hyderabad)</option>
+                <option value="Central">Central (Bhopal)</option>
+                <option value="Northern">Northern (Kanpur/Delhi)</option>
+                <option value="Western">Western (Mumbai/Pune)</option>
+                <option value="Southern">Southern (Chennai)</option>
+              </select>
+
+              <select id="filter-category" class="text-xs border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-[#1b365d] bg-white">
+                <option value="ALL">All Nature of Complaints</option>
+                <option value="Certificate & Fee Refund">Certificate &amp; Fee Refund</option>
+                <option value="Faculty Salary & Ghost Faculty">Faculty Salary &amp; Ghost Faculty</option>
+                <option value="EoA / Infrastructure Deficiency">EoA / Infrastructure Deficiency</option>
+                <option value="Excess Admission / Quota Violation">Excess Admission / Quota Violation</option>
+                <option value="FDR / Financial Embezzlement">FDR / Financial Embezzlement</option>
+              </select>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="filter-status" class="text-xs border border-slate-300 rounded px-2 py-1 bg-white">
+                  <option value="ALL">Status: All</option>
+                  <option value="Under Process">Under Process</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Escalated">Escalated (Overdue)</option>
+                  <option value="Transferred">Transferred</option>
+                  <option value="Disposed">Disposed</option>
+                </select>
+
+                <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-red-800 bg-red-50 border border-red-200 px-2.5 py-1 rounded cursor-pointer">
+                  <input type="checkbox" id="filter-overlap-only" class="rounded text-red-700 focus:ring-0" />
+                  <span>Filter Overlapping Institutions Only (RB ∩ PGRC)</span>
+                </label>
+              </div>
+              <div class="text-xs text-slate-600 mono font-medium" id="table-count-label">Showing 0 records</div>
+            </div>
+          </div>
+
+          <!-- Master Case Register Table -->
+          <div class="gov-panel overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse gov-table">
+                <thead>
+                  <tr>
+                    <th class="py-2.5 px-3">Case / File ID</th>
+                    <th class="py-2.5 px-3">Institution &amp; Permanent ID</th>
+                    <th class="py-2.5 px-3">Assigned Bureau &amp; Dealing Hand</th>
+                    <th class="py-2.5 px-3">Category &amp; File Movement</th>
+                    <th class="py-2.5 px-3">Status &amp; SLA</th>
+                    <th class="py-2.5 px-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="cases-table-body" class="text-xs bg-white">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 4 Cols: Backend Multi-Agent Orchestrator Event Bus -->
+        <div class="lg:col-span-4">
+          <div class="gov-panel flex flex-col h-[630px] overflow-hidden">
+            <div class="px-3.5 py-2.5 bg-slate-100 border-b border-slate-300 flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold uppercase text-slate-800">Multi-Agent Worker Event Log</h3>
+                <p class="text-[11px] text-slate-500">Worker Agents [A1–A4] → Master Orchestrator</p>
+              </div>
+              <button id="btn-trigger-heartbeat" class="text-[11px] px-2.5 py-1 rounded bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-semibold transition">
+                Run SLA Check
+              </button>
+            </div>
+
+            <!-- Worker Node Status Table -->
+            <div class="grid grid-cols-2 gap-1.5 p-2.5 bg-slate-50 border-b border-slate-200 text-[11px]">
+              <div class="bg-white border border-slate-200 rounded px-2 py-1 flex items-center justify-between">
+                <span class="font-semibold text-slate-700">A1: Entity Resolver</span>
+                <span class="mono text-[10px] text-emerald-700 font-bold">sim≥0.92</span>
+              </div>
+              <div class="bg-white border border-slate-200 rounded px-2 py-1 flex items-center justify-between">
+                <span class="font-semibold text-slate-700">A2: Event Ledger</span>
+                <span class="mono text-[10px] text-emerald-700 font-bold">SHA-256</span>
+              </div>
+              <div class="bg-white border border-slate-200 rounded px-2 py-1 flex items-center justify-between">
+                <span class="font-semibold text-slate-700">A3: Overlap Radar</span>
+                <span class="mono text-[10px] text-red-700 font-bold">RB∩PGRC</span>
+              </div>
+              <div class="bg-white border border-slate-200 rounded px-2 py-1 flex items-center justify-between">
+                <span class="font-semibold text-slate-700">A4: SLA Watchdog</span>
+                <span class="mono text-[10px] text-amber-700 font-bold">15d/30d</span>
+              </div>
+            </div>
+
+            <!-- Plain-text Server Style Log Stream -->
+            <div id="agent-telemetry-feed" class="flex-1 overflow-y-auto p-2.5 space-y-2 bg-[#0f172a] text-slate-200 text-[11px] mono">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- TAB 2: AGENTIC DISPATCH & ENTITY RESOLUTION CONSOLE        -->
+    <!-- ========================================================== -->
+    <section id="tab-simulator" class="tab-panel hidden space-y-4">
+      <div class="gov-panel p-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Case Intake &amp; Multi-Agent Entity Resolution Console</h2>
+            <p class="text-xs text-slate-600">
+              Submit an unstructured grievance or bureau file entry (even without an AICTE Permanent ID) to trace how the 4 Worker Agents resolve the institution and check for cross-bureau collisions.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button data-preset="preset1" class="preset-btn text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-semibold px-2.5 py-1.5 rounded transition">
+              Load Test 1: JBIET Hyd (RB vs PGRC)
+            </button>
+            <button data-preset="preset2" class="preset-btn text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-semibold px-2.5 py-1.5 rounded transition">
+              Load Test 2: SIRT Bhopal (Vigilance vs RB FDR)
+            </button>
+            <button data-preset="preset3" class="preset-btn text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-semibold px-2.5 py-1.5 rounded transition">
+              Load Test 3: Loyola Secunderabad (CPGRAMS)
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-4">
+          <!-- Left 5 Cols: Standard Government Intake Form -->
+          <div class="lg:col-span-5 bg-slate-50 rounded border border-slate-300 p-4 space-y-3">
+            <h3 class="text-xs font-bold uppercase text-slate-700 border-b border-slate-200 pb-1.5">Incoming Diary / File Entry</h3>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-700 mb-1">Reported Institution Name / Unstructured Text</label>
+              <input id="sim-inst-name" type="text" value="JB Engg College Yenkapally, Hyderabad" class="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white font-medium" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">District / Pin Code</label>
+                <input id="sim-location" type="text" value="Hyderabad - 500075" class="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Receiving Bureau / Cell</label>
+                <select id="sim-bureau" class="w-full text-xs border border-slate-300 rounded px-2 py-1.5 bg-white font-semibold">
+                  <option value="RB">Regulation Bureau (RB)</option>
+                  <option value="PGRC">Public Grievance Cell (PGRC)</option>
+                  <option value="VIGILANCE">Vigilance Cell</option>
+                  <option value="RO">Regional Office (RO)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Source Channel</label>
+                <select id="sim-channel" class="w-full text-xs border border-slate-300 rounded px-2 py-1.5 bg-white">
+                  <option value="CPGRAMS Portal">CPGRAMS Portal</option>
+                  <option value="AICTE CSS Portal">AICTE CSS Web Portal</option>
+                  <option value="Regulation Bureau Scrutiny">RB EoA Scrutiny Trigger</option>
+                  <option value="Direct Email / VIP Ref">Direct Email / VIP Ref</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Complaint Category</label>
+                <select id="sim-category" class="w-full text-xs border border-slate-300 rounded px-2 py-1.5 bg-white">
+                  <option value="EoA / Infrastructure Deficiency">EoA / Infrastructure Deficiency</option>
+                  <option value="Certificate & Fee Refund">Certificate &amp; Fee Refund</option>
+                  <option value="Faculty Salary & Ghost Faculty">Faculty Salary &amp; Ghost Faculty</option>
+                  <option value="Excess Admission / Quota Violation">Excess Admission / Quota Violation</option>
+                  <option value="FDR / Financial Embezzlement">FDR / Financial Embezzlement</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-700 mb-1">Brief Subject / File Note</label>
+              <textarea id="sim-desc" rows="3" class="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white">Initiating Extension of Approval (EoA) &amp; Security Deposit scrutiny for AY 2026-27 following faculty shortage complaint.</textarea>
+            </div>
+
+            <button id="btn-run-swarm" class="w-full bg-[#1b365d] hover:bg-[#122644] text-white font-bold text-xs py-2.5 rounded border border-slate-900 transition">
+              Run Agentic Validation &amp; Register Case
+            </button>
+          </div>
+
+          <!-- Right 7 Cols: Structured Agent Pipeline Trace Table -->
+          <div class="lg:col-span-7 space-y-3">
+            <h3 class="text-xs font-bold uppercase text-slate-700 border-b border-slate-200 pb-1.5">Worker Agent Execution Trace &amp; Master Orchestrator Output</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div id="sim-card-a1" class="gov-panel p-3 border-l-4 border-l-purple-700">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">Agent 1: Entity Resolution</span>
+                  <span id="sim-status-a1" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 mono">IDLE</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Jaro-Winkler + PinCode + Vector Match</p>
+                <div id="sim-out-a1" class="mt-2 p-2 rounded bg-slate-50 border border-slate-200 text-[11px] mono text-slate-700 min-h-[52px]">
+                  Awaiting input diary entry...
+                </div>
+              </div>
+
+              <div id="sim-card-a2" class="gov-panel p-3 border-l-4 border-l-blue-700">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">Agent 2: Case Ledger Node</span>
+                  <span id="sim-status-a2" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 mono">IDLE</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Append-Only Event Commit (SHA-256)</p>
+                <div id="sim-out-a2" class="mt-2 p-2 rounded bg-slate-50 border border-slate-200 text-[11px] mono text-slate-700 min-h-[52px]">
+                  Awaiting PID assignment...
+                </div>
+              </div>
+
+              <div id="sim-card-a3" class="gov-panel p-3 border-l-4 border-l-red-700">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">Agent 3: Cross-Bureau Overlap Check</span>
+                  <span id="sim-status-a3" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 mono">IDLE</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Active Concurrency Scan [RB ∩ PGRC]</p>
+                <div id="sim-out-a3" class="mt-2 p-2 rounded bg-slate-50 border border-slate-200 text-[11px] mono text-slate-700 min-h-[52px]">
+                  Awaiting cross-cell state check...
+                </div>
+              </div>
+
+              <div id="sim-card-a4" class="gov-panel p-3 border-l-4 border-l-amber-600">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">Agent 4: Statutory SLA Timer</span>
+                  <span id="sim-status-a4" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 mono">IDLE</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">APH 15-Day SGRC / 30-Day SCSC Clock</p>
+                <div id="sim-out-a4" class="mt-2 p-2 rounded bg-slate-50 border border-slate-200 text-[11px] mono text-slate-700 min-h-[52px]">
+                  Awaiting category SLA computation...
+                </div>
+              </div>
+            </div>
+
+            <!-- Master Orchestrator Output Panel -->
+            <div id="sim-card-master" class="gov-panel p-3.5 bg-slate-900 text-white border border-slate-800">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-700">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-300">Master Orchestrator Agent — Routing &amp; Alert Decision</span>
+                <span id="sim-status-master" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 mono">STANDBY</span>
+              </div>
+              <div id="sim-out-master" class="mt-2 text-xs mono text-slate-200 leading-relaxed">
+                Submit the form on the left to execute the 4 worker agents and view the Master Orchestrator routing decision.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 3: INSTITUTION MASTER DOSSIER & CHRONOLOGICAL MOVEMENT LOG   -->
+    <!-- ================================================================ -->
+    <section id="tab-profile" class="tab-panel hidden space-y-4">
+
+      <div class="gov-panel p-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xs font-bold uppercase text-slate-600">Institution Record:</span>
+          <select id="profile-inst-select" class="text-xs font-bold text-slate-900 border border-slate-300 rounded px-3 py-1.5 bg-white focus:outline-none focus:border-[#1b365d]">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-profile-hold" class="text-xs font-semibold px-3 py-1.5 rounded bg-red-700 hover:bg-red-800 text-white transition">
+            Toggle Regulatory Hold (EoA / FDR)
+          </button>
+          <button id="btn-profile-link-all" class="text-xs font-semibold px-3 py-1.5 rounded bg-[#1b365d] hover:bg-[#122644] text-white transition">
+            Mark All Bureaus Coordinated
+          </button>
+        </div>
+      </div>
+
+      <!-- Institution Master Metadata Header -->
+      <div id="profile-header-card" class="gov-panel p-4">
+        <!-- Populated dynamically -->
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Left 5 Cols: Active Files & Officer Note Sheet Input -->
+        <div class="lg:col-span-5 space-y-3">
+          <div class="gov-panel p-3.5">
+            <h3 class="text-xs font-bold uppercase text-slate-700 pb-2 border-b border-slate-200">
+              Files &amp; Complaints Linked to This Permanent ID
+            </h3>
+            <div id="profile-cases-list" class="space-y-2.5 mt-2.5">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <div class="gov-panel p-3.5 space-y-2.5">
+            <h3 class="text-xs font-bold uppercase text-slate-700 border-b border-slate-200 pb-1.5">
+              Append Inter-Bureau File Note / Order
+            </h3>
+            <div class="grid grid-cols-2 gap-2">
+              <select id="note-bureau" class="text-xs border border-slate-300 rounded px-2 py-1.5 bg-white font-semibold">
+                <option value="RB">Regulation Bureau (RB)</option>
+                <option value="PGRC">PGRC Cell</option>
+                <option value="VIGILANCE">Vigilance Cell</option>
+                <option value="RO">Regional Office</option>
+              </select>
+              <select id="note-action-type" class="text-xs border border-slate-300 rounded px-2 py-1.5 bg-white font-semibold">
+                <option value="Joint Scrutiny Note Added">Joint Scrutiny Note Added</option>
+                <option value="Show Cause Notice Issued">Show Cause Notice Issued</option>
+                <option value="Transferred to Regional Office for EVC">Transferred to RO for EVC</option>
+                <option value="Placed Before SCSC / SHC">Placed Before SCSC / SHC</option>
+                <option value="Case Disposed / Order Issued">Case Disposed / Order Issued</option>
+              </select>
+            </div>
+            <input id="note-text" type="text" placeholder="Enter file observation, speaking order ref, or inter-bureau remark..." class="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5" />
+            <button id="btn-add-timeline-event" class="w-full bg-[#1b365d] hover:bg-[#122644] text-white font-semibold text-xs py-2 rounded transition">
+              Record File Movement Entry
+            </button>
+          </div>
+        </div>
+
+        <!-- Right 7 Cols: Chronological File Movement Register -->
+        <div class="lg:col-span-7 gov-panel p-4">
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-200">
+            <div>
+              <h3 class="text-xs font-bold uppercase text-slate-800">Chronological File Movement &amp; Action History</h3>
+              <p class="text-[11px] text-slate-500">Traceable audit trail of all actions across PGRC, RB, Vigilance &amp; Regional Offices</p>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 mono text-[10px] border border-slate-300">Audit Log Verified</span>
+          </div>
+
+          <div id="profile-git-timeline" class="mt-4 relative border-l-2 border-slate-300 ml-2.5 space-y-3 pl-4">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 4: BUREAU PENDENCY, SLA AGEING & MIS REPORTS          -->
+    <!-- ========================================================= -->
+    <section id="tab-analytics" class="tab-panel hidden space-y-4">
+      <div class="gov-panel p-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900">MIS Pendency, SLA Ageing &amp; Bureau Workload Summary</h2>
+          <p class="text-xs text-slate-600">Consolidated statistics across AICTE Headquarters and Regional Offices</p>
+        </div>
+        <button id="btn-export-csv" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs px-3.5 py-1.5 rounded flex items-center gap-1.5 transition">
+          <span>Download MIS Statement (.CSV)</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="gov-panel p-3.5">
+          <h3 class="text-xs font-bold uppercase text-slate-700 mb-2">1. Bureau / Cell-Wise Case Pendency</h3>
+          <div class="relative h-60">
+            <canvas id="chart-bureau"></canvas>
+          </div>
+        </div>
+
+        <div class="gov-panel p-3.5">
+          <h3 class="text-xs font-bold uppercase text-slate-700 mb-2">2. Pending Case Ageing (&lt;15d, 15–30d, &gt;30d)</h3>
+          <div class="relative h-60">
+            <canvas id="chart-ageing"></canvas>
+          </div>
+        </div>
+
+        <div class="gov-panel p-3.5">
+          <h3 class="text-xs font-bold uppercase text-slate-700 mb-2">3. Region-Wise Case Distribution</h3>
+          <div class="relative h-60">
+            <canvas id="chart-region"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="gov-panel overflow-hidden">
+        <div class="px-3.5 py-2.5 bg-slate-100 border-b border-slate-300">
+          <h3 class="text-xs font-bold uppercase text-slate-800">Institution-Wise Consolidated Case &amp; Overlap Statement</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse gov-table text-xs">
+            <thead>
+              <tr>
+                <th class="py-2.5 px-3">AICTE Permanent ID</th>
+                <th class="py-2.5 px-3">Institution Name &amp; Recorded Variations</th>
+                <th class="py-2.5 px-3">Region</th>
+                <th class="py-2.5 px-3">Dealing Bureaus</th>
+                <th class="py-2.5 px-3">Total Files</th>
+                <th class="py-2.5 px-3">Overlap Status</th>
+                <th class="py-2.5 px-3">Regulatory Hold</th>
+              </tr>
+            </thead>
+            <tbody id="analytics-inst-tbody" class="bg-white">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white text-slate-600 text-xs py-3 px-4 border-t border-slate-300 mt-6">
+    <div class="max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <strong class="text-slate-900">All India Council for Technical Education (AICTE)</strong> — Nelson Mandela Marg, Vasant Kunj, New Delhi-110070
+      </div>
+      <div class="mono text-[11px]">
+        SAMANVAY-AI | Smart India Hackathon 2026 (Problem Statement ID: 26264 — Regulation Bureau)
+      </div>
+    </div>
+  </footer>
+
+  <!-- COMPLETE APPLICATION LOGIC -->
+  <script>
+    const institutions = [
+      {
+        pid: "1-16881901",
+        name: "J.B. Institute of Engineering & Technology",
+        aliases: ["JBIET Hyderabad", "JB Engg College Yenkapally", "JBIET Moinabad"],
+        region: "South-Central",
+        city: "Hyderabad, Telangana - 500075",
+        eoaStatus: "EoA Under Scrutiny (2026-27)",
+        fdrStatus: "FDR Rs. 35L Matures Nov 2026",
+        regulatoryHold: true,
+        coordinated: false
+      },
+      {
+        pid: "1-3929791",
+        name: "Sagar Group of Institutions (SIRT)",
+        aliases: ["SIRT Bhopal", "Sagar Engg College Ayodhya Bypass", "Sagar Institute Bhopal"],
+        region: "Central",
+        city: "Bhopal, Madhya Pradesh - 462041",
+        eoaStatus: "EoA Granted (2025-26)",
+        fdrStatus: "FDR Release Requested (Clause 6.46)",
+        regulatoryHold: false,
+        coordinated: false
+      },
+      {
+        pid: "1-24868041",
+        name: "Loyola Academy Degree & PG College",
+        aliases: ["Loyola Alwal", "Loyola Secunderabad", "Loyola Tech Institute"],
+        region: "South-Central",
+        city: "Secunderabad, Telangana - 500010",
+        eoaStatus: "EoA Approved (2024-27)",
+        fdrStatus: "Active Joint FDR (Verified)",
+        regulatoryHold: false,
+        coordinated: true
+      },
+      {
+        pid: "1-10575231",
+        name: "A & M Institute of Computer & Technology",
+        aliases: ["AMICT Pathankot", "A&M Tech College Punjab"],
+        region: "Northern",
+        city: "Pathankot, Punjab - 145001",
+        eoaStatus: "Show Cause Issued",
+        fdrStatus: "Active RTGS Security Deposit",
+        regulatoryHold: true,
+        coordinated: false
+      },
+      {
+        pid: "1-16783591",
+        name: "G.B. Pant Engineering & Technology Institute",
+        aliases: ["GBPEC Delhi", "GB Pant Okhla", "GBP Tech Campus"],
+        region: "Northern",
+        city: "New Delhi - 110020",
+        eoaStatus: "EoA Approved",
+        fdrStatus: "Govt Exempted",
+        regulatoryHold: false,
+        coordinated: true
+      },
+      {
+        pid: "1-43803501",
+        name: "Apex Institute of Management & Technical Studies",
+        aliases: ["AIMTS Pune", "Apex Tech Wakad", "Apex PGDM College"],
+        region: "Western",
+        city: "Pune, Maharashtra - 411057",
+        eoaStatus: "Deficiency Appeal at SHC",
+        fdrStatus: "FDR Lien Active",
+        regulatoryHold: false,
+        coordinated: false
+      }
+    ];
+
+    let cases = [
+      {
+        caseId: "PGRC-2026-8841",
+        pid: "1-16881901",
+        reportedName: "JBIET Moinabad, Hyd",
+        channel: "CPGRAMS Portal",
+        bureau: "PGRC",
+        officer: "Dr. M. K. Verma (AD, PGRC)",
+        category: "Certificate & Fee Refund",
+        status: "Under Process",
+        receivedDate: "2026-10-08",
+        daysElapsed: 18,
+        slaLimit: 15,
+        lastAction: "Directive issued to Principal regarding withheld B.Tech original certificates",
+        nextAction: "Place before Standing Complaint Scrutiny Committee (SCSC)",
+        linkedWith: ["RB-2026-1029"]
+      },
+      {
+        caseId: "RB-2026-1029",
+        pid: "1-16881901",
+        reportedName: "J.B. Institute of Engineering & Technology",
+        channel: "RB EoA Scrutiny",
+        bureau: "RB",
+        officer: "Sh. R. K. Soni (Adviser-II, RB)",
+        category: "EoA / Infrastructure Deficiency",
+        status: "Pending",
+        receivedDate: "2026-10-19",
+        daysElapsed: 7,
+        slaLimit: 30,
+        lastAction: "Application under scrutiny for EoA 2026-27 & Intake Restoration",
+        nextAction: "Withhold EoA clearance pending PGRC-2026-8841 disposal",
+        linkedWith: ["PGRC-2026-8841"]
+      },
+      {
+        caseId: "PGRC-2026-7712",
+        pid: "1-3929791",
+        reportedName: "SIRT Bhopal (Ayodhya Bypass)",
+        channel: "AICTE CSS Portal",
+        bureau: "PGRC",
+        officer: "Smt. Anjali Nair (SO, PGRC)",
+        category: "Faculty Salary & Ghost Faculty",
+        status: "Escalated",
+        receivedDate: "2026-09-18",
+        daysElapsed: 38,
+        slaLimit: 30,
+        lastAction: "Representation from 14 faculty members on unpaid salary & duplicate PANs",
+        nextAction: "Place before SCSC & Regional EVC verification",
+        linkedWith: ["RB-2026-3310"]
+      },
+      {
+        caseId: "RB-2026-3310",
+        pid: "1-3929791",
+        reportedName: "Sagar Group of Institutions",
+        channel: "FDR Release Portal",
+        bureau: "RB",
+        officer: "Sh. A. K. Joshi (DD, RB)",
+        category: "FDR / Financial Embezzlement",
+        status: "Under Process",
+        receivedDate: "2026-10-21",
+        daysElapsed: 5,
+        slaLimit: 30,
+        lastAction: "Request received for maturity release of Rs. 50L Joint FDR (Clause 6.46)",
+        nextAction: "Hold NOC due to pending PGRC case #PGRC-2026-7712",
+        linkedWith: ["PGRC-2026-7712"]
+      },
+      {
+        caseId: "VIG-2026-0419",
+        pid: "1-10575231",
+        reportedName: "AMICT Pathankot",
+        channel: "MoE VIP Reference",
+        bureau: "VIGILANCE",
+        officer: "Sh. D. S. Rawat (VO, Vigilance)",
+        category: "Excess Admission / Quota Violation",
+        status: "Under Process",
+        receivedDate: "2026-10-04",
+        daysElapsed: 22,
+        slaLimit: 30,
+        lastAction: "Inquiry into unapproved supernumerary admissions exceeding 15% ceiling",
+        nextAction: "Joint file review with Regulation Bureau",
+        linkedWith: ["RB-2026-2901"]
+      },
+      {
+        caseId: "RB-2026-2901",
+        pid: "1-10575231",
+        reportedName: "A & M Institute of Computer & Technology",
+        channel: "RB EoA Scrutiny",
+        bureau: "RB",
+        officer: "Sh. R. K. Soni (Adviser-II, RB)",
+        category: "Excess Admission / Quota Violation",
+        status: "Pending",
+        receivedDate: "2026-10-15",
+        daysElapsed: 11,
+        slaLimit: 15,
+        lastAction: "Draft Show Cause Notice prepared under Chapter VII of APH",
+        nextAction: "Merge file notes with Vigilance #VIG-2026-0419 prior to SHC",
+        linkedWith: ["VIG-2026-0419"]
+      },
+      {
+        caseId: "RO-2026-5501",
+        pid: "1-24868041",
+        reportedName: "Loyola Academy Alwal",
+        channel: "Regional Office Email",
+        bureau: "RO",
+        officer: "Dr. S. Venkatesh (RO, SCRO Hyd)",
+        category: "Certificate & Fee Refund",
+        status: "Disposed",
+        receivedDate: "2026-09-25",
+        daysElapsed: 12,
+        slaLimit: 15,
+        lastAction: "Fee refund of Rs. 82,000 confirmed via bank UTR receipt",
+        nextAction: "Closed — Compliance Recorded",
+        linkedWith: []
+      },
+      {
+        caseId: "PGRC-2026-6190",
+        pid: "1-43803501",
+        reportedName: "Apex Tech Wakad Pune",
+        channel: "CPGRAMS Portal",
+        bureau: "PGRC",
+        officer: "Dr. M. K. Verma (AD, PGRC)",
+        category: "EoA / Infrastructure Deficiency",
+        status: "Transferred",
+        receivedDate: "2026-10-10",
+        daysElapsed: 16,
+        slaLimit: 15,
+        lastAction: "Forwarded to Western Regional Office (WRO) for physical EVC inspection",
+        nextAction: "Awaiting EVC Inspection Report from WRO",
+        linkedWith: []
+      }
+    ];
+
+    let timelineEvents = {
+      "1-16881901": [
+        {
+          time: "2026-10-08 10:14",
+          bureau: "PGRC",
+          actor: "Agent-1 (Entity Resolver)",
+          title: "CPGRAMS Grievance Mapped to PID 1-16881901 (Sim: 0.972)",
+          desc: "Incoming complaint citing 'JBIET Moinabad, Hyd' matched to J.B. Institute of Engineering & Technology.",
+          hash: "8f4a91c2"
+        },
+        {
+          time: "2026-10-10 14:30",
+          bureau: "PGRC",
+          actor: "Dr. M. K. Verma (AD, PGRC)",
+          title: "15-Day SGRC Notice Issued (File: PGRC-2026-8841)",
+          desc: "Directed institute to return original certificates and submit compliance within 15 days.",
+          hash: "3c9144e0"
+        },
+        {
+          time: "2026-10-19 11:05",
+          bureau: "RB",
+          actor: "Sh. R. K. Soni (Adviser-II, RB)",
+          title: "Regulation Bureau Opened EoA File (File: RB-2026-1029)",
+          desc: "File initiated for annual Extension of Approval (EoA) scrutiny.",
+          hash: "7a12b804"
+        },
+        {
+          time: "2026-10-19 11:05",
+          bureau: "MASTER AGENT",
+          actor: "Agent-3 (Overlap Radar) -> Master Orchestrator",
+          title: "Cross-Bureau Overlap Flagged [RB ∩ PGRC]",
+          desc: "System generated 'Potential Overlapping Cases – Coordination Required' alert. RB approval placed on advisory hold pending PGRC-2026-8841.",
+          hash: "99e1f012"
+        }
+      ],
+      "1-3929791": [
+        {
+          time: "2026-09-18 09:20",
+          bureau: "PGRC",
+          actor: "Smt. Anjali Nair (SO, PGRC)",
+          title: "Faculty Salary Complaint Registered (File: PGRC-2026-7712)",
+          desc: "14 faculty representations mapped from 'SIRT Bhopal' to PID 1-3929791.",
+          hash: "4d1077a1"
+        },
+        {
+          time: "2026-10-21 16:15",
+          bureau: "RB",
+          actor: "Sh. A. K. Joshi (DD, RB)",
+          title: "FDR Release Application Received (File: RB-2026-3310)",
+          desc: "Application for release of Rs. 50L matured Joint FDR under APH Clause 6.46.",
+          hash: "6e8219b4"
+        },
+        {
+          time: "2026-10-21 16:15",
+          bureau: "MASTER AGENT",
+          actor: "Master Orchestrator",
+          title: "Clause 6.46 PGRC Clearance Block Triggered",
+          desc: "FDR release NOC blocked automatically due to overdue PGRC file #PGRC-2026-7712 (38 days elapsed > 30d SLA).",
+          hash: "1b55c309"
+        }
+      ]
+    };
+
+    let telemetryLogs = [
+      { time: "19:52:10", agent: "A1:ENTITY", color: "text-purple-300", msg: "Matched 'JBIET Moinabad' -> PID 1-16881901 (score=0.972)" },
+      { time: "19:52:14", agent: "A3:OVERLAP", color: "text-red-400", msg: "CONFLICT: PID 1-16881901 active in PGRC (#8841) and RB (#1029)" },
+      { time: "19:52:15", agent: "ORCHESTRATOR", color: "text-amber-300", msg: "Issued 'Potential Overlapping Cases' notice to RB & PGRC desks" },
+      { time: "19:53:02", agent: "A4:SLA-CRON", color: "text-orange-300", msg: "OVERDUE: #PGRC-2026-7712 (PID 1-3929791) at 38/30d -> Marked for SCSC" },
+      { time: "19:53:20", agent: "A2:LEDGER", color: "text-blue-300", msg: "Recorded SHA-256 event 1b55c309 on PID 1-3929791 file movement log" }
+    ];
+
+    let selectedProfilePid = "1-16881901";
+    let charts = {};
+
+    function showToast(title, subtitle, type = "info") {
+      const container = document.getElementById("toast-container");
+      const colors = {
+        info: "bg-slate-900 border-[#1b365d] text-white",
+        danger: "bg-red-950 border-red-600 text-white",
+        success: "bg-emerald-950 border-emerald-600 text-white"
+      };
+      const div = document.createElement("div");
+      div.className = `p-3 rounded border-l-4 shadow-md ${colors[type] || colors.info} text-xs`;
+      div.innerHTML = `
+        <div class="font-bold text-white">${title}</div>
+        <div class="text-slate-300 mt-0.5">${subtitle}</div>
+      `;
+      container.appendChild(div);
+      setTimeout(() => {
+        div.remove();
+      }, 4000);
+    }
+
+    function pushTelemetry(agent, color, msg) {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(" ")[0];
+      telemetryLogs.unshift({ time: timeStr, agent, color, msg });
+      renderTelemetry();
+    }
+
+    function getOverlappingInstitutions() {
+      const byPid = {};
+      cases.forEach(c => {
+        if (c.status === "Disposed") return;
+        if (!byPid[c.pid]) byPid[c.pid] = new Set();
+        byPid[c.pid].add(c.bureau);
+      });
+      return institutions.filter(inst => byPid[inst.pid] && byPid[inst.pid].size > 1);
+    }
+
+    function resolveInstitutionEntity(rawName, rawLoc) {
+      const query = (rawName + " " + rawLoc).toLowerCase();
+      let bestInst = institutions[0];
+      let bestScore = 0.86;
+
+      institutions.forEach(inst => {
+        let score = 0.5;
+        const tokens = [inst.name, inst.city, ...inst.aliases].join(" ").toLowerCase().split(/\W+/);
+        tokens.forEach(tok => {
+          if (tok.length > 2 && query.includes(tok)) {
+            score += 0.14;
+          }
+        });
+        if (score > bestScore) {
+          bestScore = Math.min(0.99, score);
+          bestInst = inst;
+        }
+      });
+
+      return { inst: bestInst, confidence: (bestScore * 100).toFixed(1) };
+    }
+
+    function renderKPIs() {
+      const overlapInsts = getOverlappingInstitutions();
+      document.getElementById("kpi-total").textContent = cases.length;
+      document.getElementById("kpi-overlaps").textContent = overlapInsts.length;
+      document.getElementById("nav-overlap-badge").textContent = `${overlapInsts.length} Conflicts`;
+      document.getElementById("kpi-process").textContent = cases.filter(c => c.status === "Under Process").length;
+      document.getElementById("kpi-pending").textContent = cases.filter(c => c.status === "Pending").length;
+      document.getElementById("kpi-overdue").textContent = cases.filter(c => c.daysElapsed > c.slaLimit && c.status !== "Disposed").length;
+      document.getElementById("kpi-transferred").textContent = cases.filter(c => c.status === "Transferred").length;
+      document.getElementById("kpi-disposed").textContent = cases.filter(c => c.status === "Disposed").length;
+    }
+
+    function renderOverlapBanner() {
+      const container = document.getElementById("overlap-cards-container");
+      const overlapInsts = getOverlappingInstitutions();
+      document.getElementById("overlap-banner-count").textContent =
+        `${overlapInsts.length} Institution(s) with concurrent active files across different Bureaus`;
+
+      container.innerHTML = overlapInsts.map(inst => {
+        const activeCases = cases.filter(c => c.pid === inst.pid && c.status !== "Disposed");
+        const bureaus = [...new Set(activeCases.map(c => c.bureau))];
+        return `
+          <div class="bg-white border ${inst.coordinated ? 'border-emerald-600' : 'border-red-300'} rounded p-3 flex flex-col justify-between shadow-sm">
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300 mono text-[11px] font-bold">PID: ${inst.pid}</span>
+                <span class="text-[11px] font-bold ${inst.coordinated ? 'text-emerald-700' : 'text-red-700'}">
+                  ${inst.coordinated ? 'Coordinated' : 'Conflict: ' + bureaus.join(' + ')}
+                </span>
+              </div>
+              <h4 class="font-bold text-xs text-slate-900 mt-1.5">${inst.name}</h4>
+              <p class="text-[11px] text-slate-500">${inst.region} Region • ${inst.city}</p>
+
+              <div class="mt-2 space-y-1">
+                ${activeCases.map(ac => `
+                  <div class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[11px] flex items-center justify-between">
+                    <span><strong class="text-slate-900">[${ac.bureau}]</strong> <span class="mono">${ac.caseId}</span>: ${ac.category}</span>
+                    <span class="text-slate-500 mono">${ac.daysElapsed}/${ac.slaLimit}d</span>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 mt-3 pt-2 border-t border-slate-200">
+              <button onclick="coordinateInstitution('${inst.pid}')" class="flex-1 ${inst.coordinated ? 'bg-emerald-700 text-white' : 'bg-[#1b365d] hover:bg-[#122644] text-white'} font-semibold text-[11px] py-1.5 px-2 rounded transition">
+                ${inst.coordinated ? 'Files Linked & Synced' : 'Link Files & Coordinate'}
+              </button>
+              <button onclick="openInstitutionProfile('${inst.pid}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-[11px] py-1.5 px-2.5 rounded border border-slate-300 transition">
+                Open Dossier
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderCasesTable() {
+      const search = document.getElementById("filter-search").value.toLowerCase().trim();
+      const bureau = document.getElementById("filter-bureau").value;
+      const region = document.getElementById("filter-region").value;
+      const category = document.getElementById("filter-category").value;
+      const status = document.getElementById("filter-status").value;
+      const overlapOnly = document.getElementById("filter-overlap-only").checked;
+
+      const overlapPids = new Set(getOverlappingInstitutions().map(i => i.pid));
+
+      const filtered = cases.filter(c => {
+        const inst = institutions.find(i => i.pid === c.pid);
+        const matchSearch = !search ||
+          c.caseId.toLowerCase().includes(search) ||
+          c.pid.toLowerCase().includes(search) ||
+          c.reportedName.toLowerCase().includes(search) ||
+          (inst && inst.name.toLowerCase().includes(search));
+        const matchBureau = bureau === "ALL" || c.bureau === bureau;
+        const matchRegion = region === "ALL" || (inst && inst.region === region);
+        const matchCat = category === "ALL" || c.category === category;
+        const matchStatus = status === "ALL" || c.status === status;
+        const matchOverlap = !overlapOnly || overlapPids.has(c.pid);
+        return matchSearch && matchBureau && matchRegion && matchCat && matchStatus && matchOverlap;
+      });
+
+      document.getElementById("table-count-label").textContent = `Showing ${filtered.length} of ${cases.length} records`;
+
+      const tbody = document.getElementById("cases-table-body");
+      tbody.innerHTML = filtered.map(c => {
+        const inst = institutions.find(i => i.pid === c.pid);
+        const hasOverlap = overlapPids.has(c.pid) && c.status !== "Disposed";
+        const isOverdue = c.daysElapsed > c.slaLimit && c.status !== "Disposed";
+
+        const bureauColors = {
+          RB: "bg-blue-50 text-blue-900 border-blue-300",
+          PGRC: "bg-purple-50 text-purple-900 border-purple-300",
+          VIGILANCE: "bg-red-50 text-red-900 border-red-300",
+          RO: "bg-teal-50 text-teal-900 border-teal-300"
+        };
+
+        const statusColors = {
+          "Under Process": "bg-blue-50 text-blue-800 border-blue-200",
+          "Pending": "bg-amber-50 text-amber-800 border-amber-200",
+          "Escalated": "bg-red-100 text-red-900 border-red-300 font-bold",
+          "Transferred": "bg-purple-50 text-purple-800 border-purple-200",
+          "Disposed": "bg-emerald-50 text-emerald-800 border-emerald-200"
+        };
+
+        return `
+          <tr class="hover:bg-slate-50 transition ${hasOverlap ? 'bg-red-50/25' : ''}">
+            <td class="py-2.5 px-3 align-top">
+              <div class="font-bold text-slate-900 mono">${c.caseId}</div>
+              <div class="text-[11px] text-slate-500">${c.channel}</div>
+              <div class="text-[10px] text-slate-400 mono">Dt: ${c.receivedDate}</div>
+            </td>
+            <td class="py-2.5 px-3 align-top">
+              <div class="font-bold text-[#1b365d] hover:underline cursor-pointer" onclick="openInstitutionProfile('${c.pid}')">
+                ${inst ? inst.name : c.reportedName}
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                <span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-800 mono text-[10px] font-semibold">PID: ${c.pid}</span>
+                <span class="text-[10px] text-slate-500">Ref: "${c.reportedName}"</span>
+              </div>
+              ${hasOverlap ? `<div class="mt-1 inline-block px-1.5 py-0.5 rounded bg-red-100 text-red-800 border border-red-300 text-[10px] font-bold">Potential Overlap — Coordinate</div>` : ''}
+            </td>
+            <td class="py-2.5 px-3 align-top">
+              <span class="px-2 py-0.5 rounded border text-[10px] font-bold ${bureauColors[c.bureau] || 'bg-slate-100'}">${c.bureau}</span>
+              <div class="text-[11px] text-slate-700 mt-1">${c.officer}</div>
+            </td>
+            <td class="py-2.5 px-3 align-top max-w-xs">
+              <div class="font-semibold text-slate-900">${c.category}</div>
+              <div class="text-[11px] text-slate-600 mt-0.5">${c.lastAction}</div>
+              <div class="text-[10px] text-[#1b365d] font-semibold mt-1">Next: ${c.nextAction}</div>
+            </td>
+            <td class="py-2.5 px-3 align-top">
+              <span class="px-2 py-0.5 rounded border text-[10px] font-semibold ${statusColors[c.status] || ''}">${c.status}</span>
+              <div class="mt-1.5 text-[11px] mono ${isOverdue ? 'text-red-700 font-bold' : 'text-slate-600'}">
+                ${c.daysElapsed}d / ${c.slaLimit}d SLA
+                ${isOverdue ? '<br><span class="text-[10px] bg-red-700 text-white px-1 rounded">OVERDUE</span>' : ''}
+              </div>
+            </td>
+            <td class="py-2.5 px-3 align-top text-right space-y-1">
+              <button onclick="openInstitutionProfile('${c.pid}')" class="w-full bg-[#1b365d] hover:bg-[#122644] text-white text-[11px] font-semibold px-2 py-1 rounded transition">
+                Dossier
+              </button>
+              ${c.status !== 'Disposed' ? `
+                <button onclick="advanceCaseStatus('${c.caseId}')" class="w-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-[10px] font-semibold px-2 py-1 rounded transition">
+                  Dispose
+                </button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderTelemetry() {
+      const feed = document.getElementById("agent-telemetry-feed");
+      feed.innerHTML = telemetryLogs.map(log => `
+        <div class="border-b border-slate-800 pb-2">
+          <div class="flex items-center justify-between text-[10px] text-slate-400">
+            <span class="font-bold ${log.color}">[${log.agent}]</span>
+            <span>${log.time}</span>
+          </div>
+          <div class="text-slate-200 mt-0.5 text-[11px]">${log.msg}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderProfileTab() {
+      const select = document.getElementById("profile-inst-select");
+      select.innerHTML = institutions.map(inst =>
+        `<option value="${inst.pid}" ${inst.pid === selectedProfilePid ? 'selected' : ''}>${inst.pid} — ${inst.name} (${inst.region})</option>`
+      ).join("");
+
+      const inst = institutions.find(i => i.pid === selectedProfilePid) || institutions[0];
+      const instCases = cases.filter(c => c.pid === inst.pid);
+      const activeBureaus = [...new Set(instCases.filter(c => c.status !== "Disposed").map(c => c.bureau))];
+      const hasOverlap = activeBureaus.length > 1;
+
+      document.getElementById("profile-header-card").innerHTML = `
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded bg-[#1b365d] text-white mono text-xs font-bold">Permanent ID: ${inst.pid}</span>
+              <span class="px-2.5 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300 text-xs font-semibold">${inst.region} Region</span>
+              ${hasOverlap ? `<span class="px-2.5 py-0.5 rounded bg-red-100 text-red-900 border border-red-300 text-xs font-bold">Overlapping Cases Active (${activeBureaus.join(' + ')})</span>` : ''}
+              ${inst.regulatoryHold ? `<span class="px-2.5 py-0.5 rounded bg-red-700 text-white text-xs font-bold">REGULATORY HOLD (EoA / FDR Blocked)</span>` : `<span class="px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-semibold">Clearance Normal</span>`}
+            </div>
+            <h2 class="text-lg font-bold text-slate-900 mt-2">${inst.name}</h2>
+            <p class="text-xs text-slate-600 mt-0.5">${inst.city} • <strong>Recorded Name Variants Mapped by Agent-1:</strong> ${inst.aliases.join(" | ")}</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-3 rounded border border-slate-300">
+            <div>
+              <div class="text-[10px] uppercase text-slate-500 font-bold">Regulation Bureau Status</div>
+              <div class="font-bold text-slate-900 mt-0.5">${inst.eoaStatus}</div>
+            </div>
+            <div>
+              <div class="text-[10px] uppercase text-slate-500 font-bold">Security Deposit / FDR</div>
+              <div class="font-bold text-slate-900 mt-0.5">${inst.fdrStatus}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("profile-cases-list").innerHTML = instCases.map(c => `
+        <div class="p-2.5 rounded border ${c.status === 'Disposed' ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-300'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold mono text-xs text-slate-900">${c.caseId} <span class="text-[#1b365d]">[${c.bureau}]</span></span>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 border border-slate-200">${c.status} (${c.daysElapsed}/${c.slaLimit}d)</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 mt-1">${c.category}</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Dealing Hand: ${c.officer} • Filed Name: "${c.reportedName}"</div>
+          <div class="text-[11px] text-slate-700 mt-1 bg-slate-50 p-1.5 rounded border border-slate-200"><strong>Last Note:</strong> ${c.lastAction}</div>
+        </div>
+      `).join("");
+
+      const events = timelineEvents[inst.pid] || [
+        {
+          time: "2026-10-01 09:00",
+          bureau: "SYSTEM",
+          actor: "Agent-2 (Ledger)",
+          title: `Initialized Master Institution Ledger for ${inst.pid}`,
+          desc: `All complaints from CPGRAMS, PGRC, RB, and Regional Offices anchored to ${inst.name}.`,
+          hash: "5a1022c9"
+        }
+      ];
+
+      document.getElementById("profile-git-timeline").innerHTML = events.map(ev => `
+        <div class="relative bg-slate-50 rounded p-3 border border-slate-300">
+          <span class="absolute -left-[22px] top-3.5 w-3 h-3 rounded-full ${ev.bureau === 'MASTER AGENT' ? 'bg-red-700' : 'bg-[#1b365d]'}"></span>
+          <div class="flex flex-wrap items-center justify-between gap-2 text-[11px]">
+            <span class="font-bold uppercase px-1.5 py-0.5 rounded ${ev.bureau === 'MASTER AGENT' ? 'bg-red-100 text-red-900' : 'bg-slate-200 text-slate-800'}">${ev.bureau} • ${ev.actor}</span>
+            <span class="text-slate-500 mono">${ev.time} | Ref: ${ev.hash}</span>
+          </div>
+          <div class="font-bold text-slate-900 text-xs mt-1">${ev.title}</div>
+          <p class="text-xs text-slate-700 mt-0.5">${ev.desc}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderAnalyticsTab() {
+      const tbody = document.getElementById("analytics-inst-tbody");
+      tbody.innerHTML = institutions.map(inst => {
+        const ic = cases.filter(c => c.pid === inst.pid);
+        const bureaus = [...new Set(ic.filter(c => c.status !== "Disposed").map(c => c.bureau))];
+        const overlap = bureaus.length > 1;
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2 px-3 font-bold mono text-slate-900">${inst.pid}</td>
+            <td class="py-2 px-3">
+              <div class="font-bold text-slate-900">${inst.name}</div>
+              <div class="text-[11px] text-slate-500">Variants: ${inst.aliases.join(", ")}</div>
+            </td>
+            <td class="py-2 px-3">${inst.region}</td>
+            <td class="py-2 px-3 font-semibold">${bureaus.length ? bureaus.join(", ") : "None (Closed)"}</td>
+            <td class="py-2 px-3 font-bold mono">${ic.length}</td>
+            <td class="py-2 px-3">
+              ${overlap ? '<span class="px-2 py-0.5 rounded bg-red-100 text-red-900 border border-red-300 font-bold text-[11px]">Overlap Active</span>' : '<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">Single Bureau</span>'}
+            </td>
+            <td class="py-2 px-3">
+              ${inst.regulatoryHold ? '<span class="px-2 py-0.5 rounded bg-red-700 text-white font-bold text-[11px]">Hold Active</span>' : '<span class="text-slate-500">Clear</span>'}
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      const bureauCounts = { RB: 0, PGRC: 0, VIGILANCE: 0, RO: 0 };
+      let ageUnder15 = 0, age15to30 = 0, ageOver30 = 0;
+      const regionCounts = { "South-Central": 0, "Central": 0, "Northern": 0, "Western": 0 };
+
+      cases.forEach(c => {
+        if (bureauCounts[c.bureau] !== undefined) bureauCounts[c.bureau]++;
+        if (c.status !== "Disposed") {
+          if (c.daysElapsed <= 15) ageUnder15++;
+          else if (c.daysElapsed <= 30) age15to30++;
+          else ageOver30++;
+        }
+        const inst = institutions.find(i => i.pid === c.pid);
+        if (inst && regionCounts[inst.region] !== undefined) regionCounts[inst.region]++;
+      });
+
+      if (charts.bureau) charts.bureau.destroy();
+      if (charts.ageing) charts.ageing.destroy();
+      if (charts.region) charts.region.destroy();
+
+      const ctxB = document.getElementById("chart-bureau");
+      if (ctxB) {
+        charts.bureau = new Chart(ctxB, {
+          type: "bar",
+          data: {
+            labels: ["Regulation Bureau", "PGRC Cell", "Vigilance Cell", "Regional Offices"],
+            datasets: [{
+              label: "Registered Files",
+              data: [bureauCounts.RB, bureauCounts.PGRC, bureauCounts.VIGILANCE, bureauCounts.RO],
+              backgroundColor: ["#1b365d", "#475569", "#991b1b", "#0f766e"],
+              borderRadius: 3
+            }]
+          },
+          options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+
+      const ctxA = document.getElementById("chart-ageing");
+      if (ctxA) {
+        charts.ageing = new Chart(ctxA, {
+          type: "doughnut",
+          data: {
+            labels: ["Within 15 Days", "15 to 30 Days", "Over 30 Days (Breach)"],
+            datasets: [{
+              data: [ageUnder15, age15to30, ageOver30],
+              backgroundColor: ["#15803d", "#d97706", "#b91c1c"]
+            }]
+          },
+          options: { maintainAspectRatio: false }
+        });
+      }
+
+      const ctxR = document.getElementById("chart-region");
+      if (ctxR) {
+        charts.region = new Chart(ctxR, {
+          type: "bar",
+          data: {
+            labels: Object.keys(regionCounts),
+            datasets: [{
+              label: "Regional Files",
+              data: Object.values(regionCounts),
+              backgroundColor: "#334155",
+              borderRadius: 3
+            }]
+          },
+          options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+    }
+
+    function refreshAllViews() {
+      renderKPIs();
+      renderOverlapBanner();
+      renderCasesTable();
+      renderTelemetry();
+      renderProfileTab();
+      renderAnalyticsTab();
+    }
+
+    window.coordinateInstitution = function(pid) {
+      const inst = institutions.find(i => i.pid === pid);
+      if (!inst) return;
+      inst.coordinated = true;
+      inst.regulatoryHold = true;
+
+      if (!timelineEvents[pid]) timelineEvents[pid] = [];
+      timelineEvents[pid].unshift({
+        time: "Just Now",
+        bureau: "MASTER AGENT",
+        actor: "Inter-Bureau Coordination Lock",
+        title: "Overlapping Files Linked & Regulatory Hold Applied",
+        desc: `RB, PGRC, and Vigilance files on ${inst.name} (${pid}) linked under a joint scrutiny thread.`,
+        hash: Math.random().toString(16).substring(2, 10)
+      });
+
+      pushTelemetry("ORCHESTRATOR", "text-emerald-300", `Linked RB & PGRC files for PID ${pid} (${inst.name})`);
+      showToast("Inter-Bureau Coordination Recorded", `Files for PID ${pid} linked across RB & PGRC.`, "success");
+      refreshAllViews();
+    };
+
+    window.openInstitutionProfile = function(pid) {
+      selectedProfilePid = pid;
+      switchTab("tab-profile");
+      renderProfileTab();
+    };
+
+    window.advanceCaseStatus = function(caseId) {
+      const c = cases.find(x => x.caseId === caseId);
+      if (!c) return;
+      c.status = "Disposed";
+      c.lastAction = "Final Speaking Order issued and compliance verified";
+      c.nextAction = "File Closed";
+      pushTelemetry("A2:LEDGER", "text-emerald-300", `File ${caseId} (${c.pid}) marked Disposed`);
+      showToast(`File ${caseId} Disposed`, `Status updated across all Bureau views.`, "success");
+      refreshAllViews();
+    };
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+      document.getElementById(tabId).classList.remove("hidden");
+
+      document.querySelectorAll(".nav-tab").forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.classList.add("border-[#1b365d]", "text-[#1b365d]", "bg-white");
+          btn.classList.remove("border-transparent", "text-slate-600");
+        } else {
+          btn.classList.remove("border-[#1b365d]", "text-[#1b365d]", "bg-white");
+          btn.classList.add("border-transparent", "text-slate-600");
+        }
+      });
+
+      if (tabId === "tab-analytics") {
+        setTimeout(renderAnalyticsTab, 50);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".nav-tab").forEach(btn => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+      });
+
+      document.getElementById("btn-open-simulator").addEventListener("click", () => {
+        switchTab("tab-simulator");
+      });
+
+      document.getElementById("role-select").addEventListener("change", (e) => {
+        const val = e.target.value;
+        document.getElementById("filter-bureau").value = val;
+        renderCasesTable();
+        showToast("Desk View Updated", `Active Desk: ${e.target.options[e.target.selectedIndex].text}`, "info");
+      });
+
+      ["filter-search", "filter-bureau", "filter-region", "filter-category", "filter-status", "filter-overlap-only"].forEach(id => {
+        document.getElementById(id).addEventListener("input", renderCasesTable);
+        document.getElementById(id).addEventListener("change", renderCasesTable);
+      });
+
+      document.getElementById("btn-reset-filters").addEventListener("click", () => {
+        document.getElementById("filter-search").value = "";
+        document.getElementById("filter-bureau").value = "ALL";
+        document.getElementById("filter-region").value = "ALL";
+        document.getElementById("filter-category").value = "ALL";
+        document.getElementById("filter-status").value = "ALL";
+        document.getElementById("filter-overlap-only").checked = false;
+        document.getElementById("role-select").value = "ALL";
+        renderCasesTable();
+      });
+
+      document.getElementById("btn-trigger-heartbeat").addEventListener("click", () => {
+        const overdueCount = cases.filter(c => c.daysElapsed > c.slaLimit && c.status !== "Disposed").length;
+        pushTelemetry("A4:SLA-CRON", "text-amber-300", `SLA scan completed: ${overdueCount} overdue files flagged for SCSC.`);
+        showToast("Statutory SLA Check Completed", `${overdueCount} files exceeding 15/30-day timelines flagged.`, "danger");
+      });
+
+      const presets = {
+        preset1: {
+          name: "JB Engg College Yenkapally, Hyderabad",
+          loc: "Hyderabad - 500075",
+          bureau: "RB",
+          channel: "Regulation Bureau Scrutiny",
+          cat: "EoA / Infrastructure Deficiency",
+          desc: "Initiating Extension of Approval (EoA) & Security Deposit scrutiny for AY 2026-27 following lab deficiency report."
+        },
+        preset2: {
+          name: "SIRT Bhopal (Sagar Tech Ayodhya Bypass)",
+          loc: "Bhopal - 462041",
+          bureau: "VIGILANCE",
+          channel: "Direct Email / VIP Ref",
+          cat: "FDR / Financial Embezzlement",
+          desc: "Vigilance inquiry into Joint FDR corpus utilization while RB processes FDR maturity release request."
+        },
+        preset3: {
+          name: "Loyola College Alwal Secunderabad",
+          loc: "Secunderabad - 500010",
+          bureau: "PGRC",
+          channel: "CPGRAMS Portal",
+          cat: "Certificate & Fee Refund",
+          desc: "Student grievance on CPGRAMS requesting return of original migration certificate."
+        }
+      };
+
+      document.querySelectorAll(".preset-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const p = presets[btn.dataset.preset];
+          if (!p) return;
+          document.getElementById("sim-inst-name").value = p.name;
+          document.getElementById("sim-location").value = p.loc;
+          document.getElementById("sim-bureau").value = p.bureau;
+          document.getElementById("sim-channel").value = p.channel;
+          document.getElementById("sim-category").value = p.cat;
+          document.getElementById("sim-desc").value = p.desc;
+        });
+      });
+
+      document.getElementById("btn-run-swarm").addEventListener("click", () => {
+        const rawName = document.getElementById("sim-inst-name").value.trim() || "JBIET Hyd";
+        const rawLoc = document.getElementById("sim-location").value.trim();
+        const bureau = document.getElementById("sim-bureau").value;
+        const channel = document.getElementById("sim-channel").value;
+        const category = document.getElementById("sim-category").value;
+        const desc = document.getElementById("sim-desc").value.trim();
+
+        const resolved = resolveInstitutionEntity(rawName, rawLoc);
+        const newCaseId = `${bureau}-2026-${Math.floor(4000 + Math.random() * 5000)}`;
+        const existingActive = cases.filter(c => c.pid === resolved.inst.pid && c.status !== "Disposed");
+        const otherBureaus = [...new Set(existingActive.map(c => c.bureau).filter(b => b !== bureau))];
+        const isOverlap = otherBureaus.length > 0;
+
+        document.getElementById("sim-status-a1").textContent = "MATCHED";
+        document.getElementById("sim-out-a1").innerHTML =
+          `Input: "${rawName}"<br><strong>Resolved PID: ${resolved.inst.pid}</strong> (${resolved.inst.name})<br>Similarity Score: <strong>${resolved.confidence}%</strong>`;
+
+        const sha = Math.random().toString(16).substring(2, 10);
+        document.getElementById("sim-status-a2").textContent = "COMMITTED";
+        document.getElementById("sim-out-a2").innerHTML =
+          `Diary File No: <strong>${newCaseId}</strong> [${bureau}]<br>Ledger Ref: <strong>${sha}</strong>`;
+
+        document.getElementById("sim-status-a3").textContent = isOverlap ? "CONFLICT" : "CLEAR";
+        document.getElementById("sim-out-a3").innerHTML = isOverlap
+          ? `<strong class="text-red-700">OVERLAP DETECTED:</strong> PID ${resolved.inst.pid} has ${existingActive.length} open file(s) in <strong>${otherBureaus.join(", ")}</strong>.`
+          : `No conflicting active files in other Bureaus for PID ${resolved.inst.pid}.`;
+
+        const slaDays = category.includes("Refund") ? 15 : 30;
+        document.getElementById("sim-status-a4").textContent = `${slaDays}D SLA`;
+        document.getElementById("sim-out-a4").innerHTML =
+          `Prescribed Disposal Window: <strong>${slaDays} Days</strong><br>Escalation Trigger: Day ${Math.floor(slaDays * 0.7)}.`;
+
+        document.getElementById("sim-status-master").textContent = isOverlap ? "OVERLAP FLAGGED" : "DISPATCHED";
+        document.getElementById("sim-out-master").innerHTML = isOverlap
+          ? `<strong>DECISION:</strong> Flagged <em>"Potential Overlapping Cases – Coordination Required"</em> across <strong>${bureau} &amp; ${otherBureaus.join(", ")}</strong>. Linked File ${newCaseId} with ${existingActive.map(e => e.caseId).join(", ")} under PID ${resolved.inst.pid}.`
+          : `<strong>DECISION:</strong> File ${newCaseId} mapped to PID ${resolved.inst.pid} and routed to ${bureau} desk.`;
+
+        cases.unshift({
+          caseId: newCaseId,
+          pid: resolved.inst.pid,
+          reportedName: rawName,
+          channel,
+          bureau,
+          officer: `${bureau} Dealing Officer`,
+          category,
+          status: "Under Process",
+          receivedDate: "2026-10-26",
+          daysElapsed: 1,
+          slaLimit: slaDays,
+          lastAction: desc || "File registered via intake console",
+          nextAction: isOverlap ? `Coordinate with ${otherBureaus.join("/")} before order` : "Initial Scrutiny",
+          linkedWith: existingActive.map(e => e.caseId)
+        });
+
+        if (!timelineEvents[resolved.inst.pid]) timelineEvents[resolved.inst.pid] = [];
+        timelineEvents[resolved.inst.pid].unshift({
+          time: "Just Now",
+          bureau: isOverlap ? "MASTER AGENT" : bureau,
+          actor: `Intake Console (${newCaseId})`,
+          title: isOverlap
+            ? `Cross-Bureau Overlap Flagged: ${newCaseId} [${bureau}] vs [${otherBureaus.join(", ")}]`
+            : `New File Registered: ${newCaseId} [${bureau}]`,
+          desc: `Mapped "${rawName}" -> PID ${resolved.inst.pid} (${resolved.confidence}%). ${desc}`,
+          hash: sha
+        });
+
+        pushTelemetry("A1:ENTITY", "text-purple-300", `Mapped "${rawName}" -> ${resolved.inst.pid} (${resolved.confidence}%)`);
+        if (isOverlap) {
+          pushTelemetry("ORCHESTRATOR", "text-red-400", `CONFLICT: ${newCaseId} [${bureau}] overlaps with ${otherBureaus.join(", ")} on PID ${resolved.inst.pid}`);
+          showToast("Potential Overlapping Case Detected", `Linked ${newCaseId} (${bureau}) with active ${otherBureaus.join("/")} files on PID ${resolved.inst.pid}.`, "danger");
+        } else {
+          showToast("File Registered", `Created ${newCaseId} under PID ${resolved.inst.pid}.`, "success");
+        }
+
+        refreshAllViews();
+      });
+
+      document.getElementById("profile-inst-select").addEventListener("change", (e) => {
+        selectedProfilePid = e.target.value;
+        renderProfileTab();
+      });
+
+      document.getElementById("btn-profile-hold").addEventListener("click", () => {
+        const inst = institutions.find(i => i.pid === selectedProfilePid);
+        if (!inst) return;
+        inst.regulatoryHold = !inst.regulatoryHold;
+        pushTelemetry("ORCHESTRATOR", "text-amber-300", `Regulatory Hold for PID ${inst.pid} set to ${inst.regulatoryHold ? 'ACTIVE' : 'RELEASED'}`);
+        showToast(
+          inst.regulatoryHold ? "Regulatory Hold Placed" : "Regulatory Hold Released",
+          `Updated EoA / FDR clearance status for ${inst.name} (${inst.pid}).`,
+          inst.regulatoryHold ? "danger" : "success"
+        );
+        refreshAllViews();
+      });
+
+      document.getElementById("btn-profile-link-all").addEventListener("click", () => {
+        window.coordinateInstitution(selectedProfilePid);
+      });
+
+      document.getElementById("btn-add-timeline-event").addEventListener("click", () => {
+        const bureau = document.getElementById("note-bureau").value;
+        const actionType = document.getElementById("note-action-type").value;
+        const text = document.getElementById("note-text").value.trim();
+        if (!text) {
+          showToast("Missing Note", "Please enter an official file remark before saving.", "info");
+          return;
+        }
+        if (!timelineEvents[selectedProfilePid]) timelineEvents[selectedProfilePid] = [];
+        const sha = Math.random().toString(16).substring(2, 10);
+        timelineEvents[selectedProfilePid].unshift({
+          time: "Just Now",
+          bureau,
+          actor: `${bureau} Dealing Officer`,
+          title: actionType,
+          desc: text,
+          hash: sha
+        });
+        document.getElementById("note-text").value = "";
+        pushTelemetry("A2:LEDGER", "text-blue-300", `File note appended to PID ${selectedProfilePid} (Ref: ${sha})`);
+        showToast("File Movement Recorded", `Added "${actionType}" to PID ${selectedProfilePid}.`, "success");
+        renderProfileTab();
+      });
+
+      document.getElementById("btn-export-csv").addEventListener("click", () => {
+        const headers = ["Case_ID", "AICTE_PID", "Institution_Name", "Bureau", "Category", "Status", "Days_Elapsed", "SLA_Limit", "Officer"];
+        const rows = cases.map(c => {
+          const inst = institutions.find(i => i.pid === c.pid);
+          return [
+            c.caseId,
+            c.pid,
+            `"${inst ? inst.name : c.reportedName}"`,
+            c.bureau,
+            `"${c.category}"`,
+            c.status,
+            c.daysElapsed,
+            c.slaLimit,
+            `"${c.officer}"`
+          ].join(",");
+        });
+        const csv = [headers.join(","), ...rows].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "AICTE_SAMANVAY_Consolidated_Statement.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast("MIS Statement Exported", "Downloaded CSV file.", "success");
+      });
+
+      refreshAllViews();
+    });
+  </script>
+</body>
+</html>
